@@ -8,17 +8,47 @@ output: html_document
 ```{r include=FALSE}
 source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/checkSetup.R")
 checkSetup()
-packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters") 
+packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters", "dplyr") 
 lapply(packages, library, character.only = TRUE)
 options(knitr.kable.NA = "")
 options(contrasts = c("contr.sum", "contr.poly"))
 source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/ANOVATools.R")
+
 ```
 
+#factors
 ```{r}
+Data <- Data %>%
+  dplyr::mutate( 
+    production = dplyr::recode_factor( 
+      production, 
+      "< 3 years" = "< 3 years",
+      "3-5 years" = "3-5 years", 
+      ">5 years" = "> 5 years", "> 5 years" = "> 5 years" 
+    )
+  )
+
 Data$genre <- as.factor(Data$genre)
 Data$series <- as.factor(Data$series)
 Data$exclusive <- as.factor(Data$exclusive)
 Data$production <- as.factor(Data$production)
 Data$post <- as.factor(Data$post)
+levels(Data$production)
+str(Data)
 ```
+
+#Create Model
+```{r}
+GameModel<- aov(
+  formula = copies ~ production
+)
+```
+
+#Test for parametric or nonparametric
+```{r}
+
+```
+
+
+
+
