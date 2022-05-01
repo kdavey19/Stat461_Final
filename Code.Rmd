@@ -110,11 +110,48 @@ interaction.plot(
 
 #Create Model
 ```{r}
-
+GameModel <- aov(
+  formula = copies ~ production+post + production:post,
+  data = GameData 
+)
 ```
 
 # Assess Assumptions
+#gaussian
 ```{r}
-
+car::qqPlot( 
+  x = residuals(GameModel),
+  distribution = "norm",
+  envelope = 0.90, 
+  id = FALSE, 
+  pch = 20, 
+  ylab = "Residuals (copies sold in millions)" 
+)
 ```
 
+#homoscedasticity
+```{r}
+ggplot( 
+  data = data.frame( 
+    residuals = residuals(GameModel), 
+    fitted = fitted.values(GameModel) 
+  ), 
+  mapping = aes(x = fitted, y = residuals) 
+) + 
+  geom_point(size = 2) + 
+  geom_hline(
+    yintercept = 0, 
+    linetype = "dashed",
+    color = "grey50" 
+  ) + 
+  geom_smooth( 
+    formula = y ~ x,
+    method = stats::loess, 
+    method.args = list(degree = 1), 
+    se = FALSE, 
+    size = 0.5 
+  ) + 
+  theme_bw() + 
+  xlab("Fitted values (copies sold in millions)") + 
+  ylab("Residuals (copies sold in millions)")
+```
