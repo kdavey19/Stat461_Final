@@ -8,7 +8,7 @@ output: html_document
 ```{r include=FALSE}
 source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/checkSetup.R")
 checkSetup()
-packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters", "dplyr") 
+packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters", "dplyr",  "DescTools", "emmeans", "openxlsx", "lme4", "nlme", "rstatix", "coin", "rcompanion") 
 lapply(packages, library, character.only = TRUE)
 options(knitr.kable.NA = "")
 options(contrasts = c("contr.sum", "contr.poly"))
@@ -59,7 +59,6 @@ ggplot(
 #Descriptive Statistics
 
 ```{r}
-
 GameStats <- psych::describeBy(
   x = GameData$copies, # Notice how we're getting the factorial treatments 
   group = paste(GameData$production, sep = " x "), 
@@ -155,3 +154,71 @@ ggplot(
   xlab("Fitted values (copies sold in millions)") + 
   ylab("Residuals (copies sold in millions)")
 ```
+
+# Omnibus test
+```{r}
+# Omnibus Test/Modern ANOVA Table 
+
+parameters::model_parameters( 
+  model = GameModel,
+  omega_squared = "partial", # Notice the use of partial
+  eta_squared = "partial", 
+  epsilon_squared = "partial", 
+  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
+  drop = "(Intercept)", # Drop an unneeded row for ANOVA
+  verbose = FALSE # Makes the function "quiet" 
+) %>% 
+  dplyr::mutate(
+    p = ifelse( 
+      test = is.na(p),
+      yes = NA, 
+      no = pvalRound(p) 
+    ) 
+  ) %>%
+  knitr::kable(
+    digits = 4, 
+    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
+    caption = "ANOVA Table for Game Data", 
+    align = c('l',rep('c',8)),
+    booktab = TRUE 
+) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("striped", "condensed"),
+    font_size = 12, 
+    latex_options = c("scale_down", "HOLD_position") 
+  )
+```
+# Nonparametric Shortcut
+Base package
+```{r}
+# Kruskal-Wallis Rank Sum Test
+GameResultsBase <- kruskal.test(
+  formula = copies ~ production,
+  data = GameData,
+  na.action = "na.omit" 
+)
+GameResultsBase
+```
+
+
+Coin Package
+```{r}
+#Asymptotic Kruskal Wallis Test
+GameResultsCoin <- coin::kruskal_test(
+  formula = copies ~ production,
+  data = GameData,
+  ties.method = "mid-ranks" 
+)
+GameResultsCoin
+```
+
+Measuring Practical Significance for Kruskal-Wallis
+```{r}
+GameEffectSize <- rcompanion::epsilonSquared(
+  x = GameData$copies, #response
+  g = GameData$production, #factor
+  digits = 4
+)
+GameEffectSize
+```
+
