@@ -16,6 +16,9 @@ source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/ANOVATools.R
 ```
 
 ```{r}
-Data$genre
-
+Data$genre <- as.factor(Data$genre)
+Data$series <- as.factor(Data$series)
+Data$exclusive <- as.factor(Data$exclusive)
+Data$production <- as.factor(Data$production)
+Data$post <- as.factor(Data$post)
 ```
