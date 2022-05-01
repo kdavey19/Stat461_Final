@@ -37,16 +37,6 @@ GameData$post <- as.factor(GameData$post)
 str(GameData)
 ```
 
-#Create Model
-```{r}
-
-```
-
-#Test for parametric or nonparametric
-```{r}
-
-```
-
 #Visualizations
 ```{r}
 ggplot( 
@@ -54,21 +44,77 @@ ggplot(
   mapping = aes( 
     x = production, 
     y = copies, 
-    fill =  
   ) 
 ) + 
   geom_boxplot() + 
   theme_bw() + 
-  xlab("Launch Angle") + 
-  ylab("Distance (in)") + 
-  labs(
-    fill = "Launch Position" 
-  ) +
+  xlab("Production Time") + 
+  ylab("Copies (in Millions)") + 
   theme( 
     legend.position = "right",
-    text = element_text(size = 14)
+    text = element_text(size = 14,)
   )
 ```
 
+#Descriptive Statistics
 
+```{r}
+
+GameStats <- psych::describeBy(
+  x = GameData$copies, # Notice how we're getting the factorial treatments 
+  group = paste(GameData$production, sep = " x "), 
+  na.rm = TRUE, 
+  skew = TRUE, 
+  ranges = TRUE, 
+  quant = c(0.25, 0.75),
+  IQR = TRUE, 
+  mat = TRUE, 
+  digits = 4
+)
+
+GameStats %>% 
+  tibble::remove_rownames() %>%
+  tibble::column_to_rownames(
+    var = "group1" 
+  ) %>% 
+  dplyr::select(
+    n, min, Q0.25, median, Q0.75, max, mad, mean, sd, skew, kurtosis 
+  ) %>% 
+  knitr::kable(
+    caption = "Summary Statistics for Game Data",
+    digits = 3,
+    format.args = list(big.mark = ","),
+    align = rep('c', 11),
+    col.names = c("n", "Min", "Q1", "Median", "Q3", "Max", "MAD", "SAM", "SASD", "Sample Skew","Sample Ex. Kurtosis"),
+    booktabs = TRUE 
+  ) %>% 
+  kableExtra::kable_styling(
+    font_size = 12,
+    latex_options = c("HOLD_position", "scale_down") 
+  )
+```
+# Base Interaction Plot
+```{r}
+interaction.plot(
+  x.factor = GameData$production, # First Factor 
+  trace.factor = GameData$post, # Second Factor
+  response = GameData$copies, # Response fun = mean, 
+  type = "b", # Both points and lines 
+  col = c("black","red","blue"), # Set colors for trace 
+  pch = c(19, 17, 15), # Set symbols for trace 
+  fixed = TRUE, legend = TRUE, 
+  xlab = "Production Time",
+  ylab = "Copies Sold (in Millions)",
+  trace.label = "Post Production")
+```
+
+#Create Model
+```{r}
+
+```
+
+# Assess Assumptions
+```{r}
+
+```
 
