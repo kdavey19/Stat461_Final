@@ -47,6 +47,28 @@ str(GameData)
 
 ```
 
+#Visualizations
+```{r}
+ggplot( 
+  data = GameData, 
+  mapping = aes( 
+    x = production, 
+    y = copies, 
+    fill =  
+  ) 
+) + 
+  geom_boxplot() + 
+  theme_bw() + 
+  xlab("Launch Angle") + 
+  ylab("Distance (in)") + 
+  labs(
+    fill = "Launch Position" 
+  ) +
+  theme( 
+    legend.position = "right",
+    text = element_text(size = 14)
+  )
+```
 
 
 
