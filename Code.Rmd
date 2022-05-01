@@ -4,3 +4,18 @@ author: "Kate Davey, Emilio Lugo, Mike Ward"
 date: '2022-05-01'
 output: html_document
 ---
+#Installing Packages
+```{r include=FALSE}
+source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/checkSetup.R")
+checkSetup()
+packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters") 
+lapply(packages, library, character.only = TRUE)
+options(knitr.kable.NA = "")
+options(contrasts = c("contr.sum", "contr.poly"))
+source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/ANOVATools.R")
+```
+
+```{r}
+Data$genre
+
+```
