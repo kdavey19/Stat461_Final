@@ -1,0 +1,83 @@
+name,genre,release,series,exclusive,production,post,copies
+Call of Duty: Modern Warfare(2019),Shooter,25-Oct-19,yes,no,3-5 years,yes,30
+Halo Infinite,Shooter,15-Nov-21,yes,yes,3-5 years,no,81
+Fortnite,Shooter,21-Jul-17,no,no,>5 years,yes,350
+Apex Legends,Shooter,4-Feb-19,no,no,< 3 years,yes,100
+Pokemon: Sword & Shield,RPG,15-Nov-19,yes,yes,< 3 years,yes,24
+Legend of Zelda: BOTW,RPG,3-Mar-17,yes,yes,>5 years,yes,27.49
+Uncharted 4,Adventure,10-May-16,yes,yes,3-5 years,yes,16.25
+The Witcher 1,RPG,26-Oct-07,no,no,3-5 years,no,66
+Assasin's Creed brotherhood,Adventure,16-Nov-10,yes,no,< 3 years,yes,6.5
+Cup Head,Platform,29-Sep-17,no,no,>5 years,no,6
+Diablo 3,RPG,15-May-12,yes,no,>5 years,yes,30
+Elden Ring,RPG,25-Feb-22,yes,no,3-5 years,no,12
+Madden 2010,Sports,13-Aug-09,yes,no,< 3 years,no,4
+Madden 2015,Sports,26-Aug-14,yes,no,< 3 years,no,7.92
+FIFA 2010,Sports,28-Sep-09,yes,no,< 3 years,no,2.97
+FIFA 2015,Sports,18-Sep-14,yes,no,< 3 years,no,17.73
+NBA 2K 2010,Sports,5-Oct-10,yes,no,< 3 years,no,2.96
+NBA 2K 2015,Sports,7-Oct-14,yes,no,< 3 years,no,7.26
+Fallout 4,RPG,10-Nov-15,yes,no,> 5 years,no,14.92
+Grand Theft Auto V,RPG,17-Sep-13,yes,no,3-5 years,yes,160
+Last of Us 1,Adventure,14-Jun-13,no,no,< 3 years,yes,13.04
+God of War 4,RPG,20-Apr-18,yes,yes,> 5 years,no,6.15
+Marvel's Spiderman,Adventure,7-Sep-18,yes,yes,3-5 years,yes,8.76
+Overwatch 1,Shooter,3-May-16,no,no,> 5 years,yes,8.18
+Smash Bros Ultimate,Fighter,7-Dec-18,yes,yes,< 3 years,yes,27.4
+Rocket League,Sports,7-Jul-15,no,no,< 3 years,no,40
+Minecraft,Adventure,17-May-09,no,no,< 3 years,yes,238
+Forza 3,Sports,27-Sep-16,yes,yes,< 3 years,yes,2.5
+Rainbow Six Siege,Shooter,1-Dec-15,yes,no,< 3 years,yes,10
+Batman Arkham Knight,Adventure,23-Jun-15,yes,yes,3-5 years,yes,5
+Destiny 1,RPG,9-Sep-14,no,no,3-5 years,yes,12.78
+Tomb Raider: Underworld,Adventure,18-Nov-08,yes,yes,< 3 years,yes,2.62
+Undertale,RPG,15-Sep-15,no,no,< 3 years,yes,3.58
+Mortal Kombat 11,Fighter,23-Apr-19,yes,no,< 3 years,yes,12
+Battlefield 4,Shooter,29-Oct-13,yes,no,< 3 years,yes,14.6
+Star Wars Battlefront 2,Shooter,17-Nov-17,yes,no,< 3 years,no,6.5
+Red Dead Redemption,RPG,18-May-10,no,no,> 5 years,yes,13.07
+Red Dead Redemption 2,RPG,26-Oct-18,yes,no,> 5 years,no,43
+Mario Kart 8 Deluxe,Sports,29-May-14,yes,yes,< 3 years,yes,51.81
+Elder Scrolls: Skyrim,RPG,11-Nov-11,yes,no,3-5 years,yes,30
+Tom Clancy's The Division 1,RPG,8-Mar-16,no,no,3-5 years,yes,10
+Five Nights at Freddy's 1,Horror,8/8/14,no,no,< 3 years,yes,0.07
+Borderlands 3,RPG,13-Sep-19,yes,no,< 3 years,yes,15
+No Mans Sky,Adventure,9-Aug-16,no,no,3-5 years,yes,2.49
+Dark Souls 1,RPG,22-Sep-11,no,no,< 3 years,yes,4.96
+Street Fighter 5,Fighter,16-Feb-16,no,no,3-5 years,yes,6.1
+Titanfall 2,Shooter,28-Oct-16,yes,no,< 3 years,yes,3.29
+Lego StarWars: The Force Awakens,Adventure,28-Jun-18,yes,no,< 3 years,yes,3.15
+ARK Survival evolved,Adventure,2-Jun-15,no,no,< 3 years,yes,1.36
+Dragon Quest 10,RPG,2-Aug-12,yes,no,> 5 years,no,1.8
+Tony Hawk's Pro Skater 5,Sports,29-Sep-15,yes,yes,< 3 years,yes,0.52
+For Honor,Fighter,14-Feb-17,no,no,> 5 years,yes,2.66
+Sid Meier's Civilization V,Strategy,21-Sep-10,yes,no,3-5 years,yes,11
+Guitar Hero 4 World Tour,Music,26-Oct-08,yes,no,< 3 years,yes,5.1
+Beat Saber,Music,1-May-18,no,no,< 3 years,yes,2
+Resident Evil Village,Horror,7-May-21,yes,no,3-5 years,no,5.7
+Among Us,Strategy,5-Jun-18,no,no,< 3 years,yes,8
+Dead Space 2,Horror,25-Jan-11,yes,no,3-5 years,yes,4
+Dead Space 3,Horror,5-Feb-13,yes,no,< 3 years,yes,2.21
+Outlast,Horror,4/9/13,no,no,< 3 years,yes,15
+Outlast 2,Horror,24-Apr-17,,no,< 3 years,no,0.39
+Starcraft 2,Strategy,27-Jul-10,yes,yes,> 5 years,yes,7.15
+Halo Wars,Strategy,26-Feb-09,yes,yes,< 3 years,yes,2.67
+Halo Wars 2,Strategy,21-Feb-17,yes,yes,< 3 years,yes,0.53
+Super Meat Boy,Platform,20-Oct-10,yes,no,< 3 years,yes,2.97
+Plants vs Zombies,Strategy,5/5/09,no,no,3-5 years,yes,1.64
+League of Legends,Strategy,27-Oct-09,no,yes,3-5 years,yes,128
+Candy Crush,Puzzle,12/4/12,no,yes,< 3 years,yes,12
+Bloons Tower Defense 6,Strategy,14-Jun-18,no,no,< 3 years,yes,0.12
+Clash of Clans,Strategy,2/8/12,no,yes,< 3 years,yes,4
+Super Mario Odyssey,Platform,27-Oct-17,no,yes,3-5 years,yes,23.02
+Terraria,Adventure,16-May-11,no,yes,< 3 years,yes,35
+Flappy Bird,Puzzle,24-May-13,no,yes,< 3 years,no,0.01
+Metroid: Dread,Platform,8/10/21,yes,yes,3-5 years,no,2.74
+Sonic Generations,Platform,1/11/11,yes,no,< 3 years,yes,1.85
+Super Mario Galaxy,Platform,1/11/07,yes,yes,< 3 years,no,12.08
+Super Mario Galaxy 2,Platform,23-May-10,yes,yes,< 3 years,no,7.41
+Portal,Puzzle,10/10/07,no,no,< 3 years,no,13.97
+Portal 2,Puzzle,18-Apr-11,yes,no,< 3 years,yes,13.06
+Rock Band 2,Music,10/10/07,yes,no,< 3 years,yes,5.31
+Rock Band 4,Music,6/10/15,yes,no,< 3 years,yes,1.32
+Anthem,RPG,22-Feb-19,no,no,>5 years,yes,8.403033
