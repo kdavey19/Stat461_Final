@@ -18,7 +18,8 @@ source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/ANOVATools.R
 
 #factors
 ```{r}
-Data <- Data %>%
+GameData<-Data
+GameData <- GameData %>%
   dplyr::mutate( 
     production = dplyr::recode_factor( 
       production, 
@@ -28,20 +29,17 @@ Data <- Data %>%
     )
   )
 
-Data$genre <- as.factor(Data$genre)
-Data$series <- as.factor(Data$series)
-Data$exclusive <- as.factor(Data$exclusive)
-Data$production <- as.factor(Data$production)
-Data$post <- as.factor(Data$post)
-levels(Data$production)
-str(Data)
+GameData$genre <- as.factor(GameData$genre)
+GameData$series <- as.factor(GameData$series)
+GameData$exclusive <- as.factor(GameData$exclusive)
+GameData$production <- as.factor(GameData$production)
+GameData$post <- as.factor(GameData$post)
+str(GameData)
 ```
 
 #Create Model
 ```{r}
-GameModel<- aov(
-  formula = copies ~ production
-)
+
 ```
 
 #Test for parametric or nonparametric
