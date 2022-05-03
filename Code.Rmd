@@ -310,4 +310,51 @@ GameEffectSize <- rcompanion::epsilonSquared(
 )
 GameEffectSize
 ```
+# Post Hoc Method Two--DSCF Test 
+
+```{r}
+dscf <- dscfTest(
+  response = GameData$copies,
+  factor = GameData$production
+)
+```
+
+
+# Kable Code for DSCF
+
+```{r}
+knitr::kable( 
+  x = dscf,
+  digits = 3, 
+  col.names = c("Comparison", "Observed W", "Adj. p-value"),     caption = paste("Post Hoc-Dwass-Steel-Critchlow-Fligner            Tests"), 
+  align = 'lcc', booktabs = TRUE 
+) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("condensed"), 
+    font_size = 12, 
+    latex_options = "HOLD_position" 
+  )
+```
+
+#Effect Sizes
+
+```{r}
+kw.PostHoc( 
+    response = GameData$copies, 
+    treatments = GameData$production 
+  ) %>% 
+knitr::kable( 
+  digits = 3, 
+  caption = "Post Hoc Comparison Effect Sizes", 
+  col.names = c("Pairwise Comparison","Hodges Lehmann Estimate", "Prob. Superiority"), 
+  align = 'lcc',
+  booktabs = TRUE 
+) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("condensed", "boardered"), 
+    font_size = 12, 
+    latex_options = "HOLD_position"
+  )
+```
+
 
