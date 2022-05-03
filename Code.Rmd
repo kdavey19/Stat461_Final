@@ -113,13 +113,62 @@ GameModel <- aov(
   formula = copies ~ production+post + production:post,
   data = GameData 
 )
+GameModel2 <- aov(
+  formula = log10(copies) ~ production+post + production:post,
+  data = GameData 
+)
+GameModel3 <- aov(
+  formula = log(copies) ~ production+post + production:post,
+  data = GameData 
+)
+GameModel4 <- aov(
+  formula = sqrt(copies) ~ production+post + production:post,
+  data = GameData 
+)
 ```
 
 # Assess Assumptions
-#gaussian
 ```{r}
+#original model
 car::qqPlot( 
   x = residuals(GameModel),
+  distribution = "norm",
+  envelope = 0.90, 
+  id = FALSE, 
+  pch = 20, 
+  ylab = "Residuals (copies sold in millions)" 
+)
+```
+
+```{r}
+#sqr rt model
+car::qqPlot( 
+  x = residuals(GameModel4),
+  distribution = "norm",
+  envelope = 0.90, 
+  id = FALSE, 
+  pch = 20, 
+  ylab = "Residuals (copies sold in millions)" 
+)
+```
+
+```{r}
+#natural log model
+car::qqPlot( 
+  x = residuals(GameModel3),
+  distribution = "norm",
+  envelope = 0.90, 
+  id = FALSE, 
+  pch = 20, 
+  ylab = "Residuals (copies sold in millions)" 
+)
+```
+
+#gaussian
+```{r}
+#log10 model
+car::qqPlot( 
+  x = residuals(GameModel2),
   distribution = "norm",
   envelope = 0.90, 
   id = FALSE, 
@@ -132,8 +181,8 @@ car::qqPlot(
 ```{r}
 ggplot( 
   data = data.frame( 
-    residuals = residuals(GameModel), 
-    fitted = fitted.values(GameModel) 
+    residuals = residuals(GameModel2), 
+    fitted = fitted.values(GameModel2) 
   ), 
   mapping = aes(x = fitted, y = residuals) 
 ) + 
@@ -161,6 +210,38 @@ ggplot(
 
 parameters::model_parameters( 
   model = GameModel,
+  omega_squared = "partial", # Notice the use of partial
+  eta_squared = "partial", 
+  epsilon_squared = "partial", 
+  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
+  drop = "(Intercept)", # Drop an unneeded row for ANOVA
+  verbose = FALSE # Makes the function "quiet" 
+) %>% 
+  dplyr::mutate(
+    p = ifelse( 
+      test = is.na(p),
+      yes = NA, 
+      no = pvalRound(p) 
+    ) 
+  ) %>%
+  knitr::kable(
+    digits = 4, 
+    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
+    caption = "ANOVA Table for Game Data", 
+    align = c('l',rep('c',8)),
+    booktab = TRUE 
+) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("striped", "condensed"),
+    font_size = 12, 
+    latex_options = c("scale_down", "HOLD_position") 
+  )
+```
+```{r}
+# Omnibus Test/Modern ANOVA Table 
+
+parameters::model_parameters( 
+  model = GameModel2,
   omega_squared = "partial", # Notice the use of partial
   eta_squared = "partial", 
   epsilon_squared = "partial", 
