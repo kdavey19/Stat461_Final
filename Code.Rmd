@@ -53,7 +53,8 @@ ggplot(
   theme( 
     legend.position = "right",
     text = element_text(size = 14,)
-  )
+  )+
+  labs(title = ("Box Plot of Game Data"))
 ```
 
 #Descriptive Statistics
@@ -104,7 +105,9 @@ interaction.plot(
   fixed = TRUE, legend = TRUE, 
   xlab = "Production Time",
   ylab = "Copies Sold (in Millions)",
-  trace.label = "Post Production")
+  main = "Interaction Plot of Game Data",
+  trace.label = "Post Production",
+)
 ```
 
 #Create Model
@@ -136,8 +139,9 @@ car::qqPlot(
   envelope = 0.90, 
   id = FALSE, 
   pch = 20, 
-  ylab = "Residuals (copies sold in millions)" 
-)
+  ylab = "Residuals (copies sold in millions)",
+  main = "Q-Q Plot for Original Game Model"
+  )
 ```
 
 ```{r}
@@ -148,7 +152,8 @@ car::qqPlot(
   envelope = 0.90, 
   id = FALSE, 
   pch = 20, 
-  ylab = "Residuals (copies sold in millions)" 
+  ylab = "Residuals (copies sold in millions)",
+  main = "Q-Q Plot for Square Root of Game Model"
 )
 ```
 
@@ -160,7 +165,8 @@ car::qqPlot(
   envelope = 0.90, 
   id = FALSE, 
   pch = 20, 
-  ylab = "Residuals (copies sold in millions)" 
+  ylab = "Residuals (copies sold in millions)",
+   main = "Q-Q Plot for natural Log of Game Model"
 )
 ```
 
@@ -173,7 +179,8 @@ car::qqPlot(
   envelope = 0.90, 
   id = FALSE, 
   pch = 20, 
-  ylab = "Residuals (copies sold in millions)" 
+  ylab = "Residuals (copies sold in millions)",
+   main = "Q-Q Plot for Log10 of Game Model"
 )
 ```
 
@@ -201,7 +208,8 @@ ggplot(
   ) + 
   theme_bw() + 
   xlab("Fitted values (copies sold in millions)") + 
-  ylab("Residuals (copies sold in millions)")
+  ylab("Residuals (copies sold in millions)") + 
+  labs(title = "Strip Plot of Game Model")
 ```
 
 # Omnibus test
