@@ -277,84 +277,87 @@ parameters::model_parameters(
     latex_options = c("scale_down", "HOLD_position") 
   )
 ```
-# Nonparametric Shortcut
-Base package
+# parametric shortcut
 ```{r}
-# Kruskal-Wallis Rank Sum Test
-GameResultsBase <- kruskal.test(
-  formula = copies ~ production,
-  data = GameData,
-  na.action = "na.omit" 
-)
-GameResultsBase
+# Anova example with Resin Lifetime 
+
+anova(GameModel)
+
 ```
-
-
-Coin Package
-```{r}
-#Asymptotic Kruskal Wallis Test
-GameResultsCoin <- coin::kruskal_test(
-  formula = copies ~ production,
-  data = GameData,
-  ties.method = "mid-ranks" 
-)
-GameResultsCoin
-```
-
-Measuring Practical Significance for Kruskal-Wallis
-```{r}
-GameEffectSize <- rcompanion::epsilonSquared(
-  x = GameData$copies, #response
-  g = GameData$production, #factor
-  digits = 4
-)
-GameEffectSize
-```
-# Post Hoc Method Two--DSCF Test 
+# Create professional looking, modern ANOVA table for Song Knowledge
 
 ```{r}
-dscf <- dscfTest(
-  response = GameData$copies,
-  factor = GameData$production
-)
-```
-
-
-# Kable Code for DSCF
-
-```{r}
-knitr::kable( 
-  x = dscf,
-  digits = 3, 
-  col.names = c("Comparison", "Observed W", "Adj. p-value"),     caption = paste("Post Hoc-Dwass-Steel-Critchlow-Fligner            Tests"), 
-  align = 'lcc', booktabs = TRUE 
+parameters::model_parameters(
+  model = GameModel, 
+  omega_squared = "raw", 
+  eta_squared = "raw", 
+  epsilon_squared = "raw" 
 ) %>% 
+  knitr::kable( 
+  digits = 4, 
+  col.names = c(
+    "Source", "SS", "df", "MS", "F", "p-value", 
+    "Omega Sq.", "Eta Sq.", "Epslion Sq."), 
+  caption = "ANOVA Table for Song Knowledge Study", 
+  booktabs = TRUE, 
+  align = c("l", rep("c", 8)) 
+  ) %>% 
   kableExtra::kable_styling( 
-    bootstrap_options = c("condensed"), 
-    font_size = 12, 
-    latex_options = "HOLD_position" 
+    font_size = 10, latex_options = c("HOLD_position") 
   )
 ```
+# Point Estimate
+```{r}
+pointEst <- dummy.coef(GameModel)
+```
+```{R}
+dummy.coef(GameModel)
+```
+```{r}
+pointEst <- dummy.coef(GameModel) 
+pointEst <- unlist(pointEst) 
+names(pointEst) <- c(
+  "Grand Mean", 
+  levels(GameData$post),
+  levels(GameData$production),
+  outer(
+    levels(GameData$post),
+    levels(GameData$production),
+    FUN = paste,
+    sep = " x "
+  )
+)
 
-#Effect Sizes
+data.frame("Estimate" = pointEst) %>%
+  knitr::kable( 
+  digits = 2, 
+  caption = "Point Estimates from the Game Data", 
+  booktabs = TRUE, align = "c" 
+  ) %>%
+  kableExtra::kable_styling(
+    font_size = 12,
+    latex_options = c("HOLD_position") 
+  )
+```
+## Kable Code for Tukey HSD
 
 ```{r}
-kw.PostHoc( 
-    response = GameData$copies, 
-    treatments = GameData$production 
-  ) %>% 
-knitr::kable( 
+hsdPH <- TukeyHSD( 
+  x = GameModel, # Your aov/lm object 
+  conf.level = 0.90 # 1 -- Your overall Type I Error level 
+)
+
+knitr::kable(
+  x = hsdPH$`production:post`, # Notice the factor's name 
   digits = 3, 
-  caption = "Post Hoc Comparison Effect Sizes", 
-  col.names = c("Pairwise Comparison","Hodges Lehmann Estimate", "Prob. Superiority"), 
-  align = 'lcc',
-  booktabs = TRUE 
-) %>% 
+  caption = "Post Hoc Tukey HSD Comparisons",
+  col.names = c("Difference", "Lower Bound", "Upper Bound", "Adj. p-Value"), 
+  align = 'lcccc', booktabs = TRUE,
+) %>%
   kableExtra::kable_styling( 
-    bootstrap_options = c("condensed", "boardered"), 
-    font_size = 12, 
+    bootstrap_options = c("condensed", "boardered"),
+    font_size = 12,
     latex_options = "HOLD_position"
   )
 ```
-
 
