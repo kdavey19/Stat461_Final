@@ -212,19 +212,24 @@ dummy.coef(GameModelBC)
 pointEst <- dummy.coef(GameModelBC) 
 pointEst <- unlist(pointEst) 
 names(pointEst) <- c(
-  "Grand Mean", "Production Time", "Post Production", "Series","Genre", "Exclusive","Post Production: Series"
-  
+  "Grand Mean", 
+  levels(GameData$Prod.Time),
+  levels(GameData$Post.Prod),
+  levels(GameData$Series), 
+  levels(GameData$Genre), 
+  levels(GameData$Exclusive)
 )
 
 data.frame("Estimate" = pointEst) %>%
-  knitr::kable( 
-  digits = 2, 
-  caption = "Point Estimates from the Game Data", 
-  booktabs = TRUE, align = "c" 
+  knitr::kable(
+  digits = 3,
+  caption = "Point Estimates",
+  booktabs = TRUE,
+  align = "c"
   ) %>%
   kableExtra::kable_styling(
     font_size = 12,
-    latex_options = c("HOLD_position") 
+    latex_options = c("HOLD_position")
   )
 ```
 ## Kable Code for Newman Keuls
