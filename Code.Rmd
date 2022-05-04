@@ -212,15 +212,8 @@ dummy.coef(GameModelBC)
 pointEst <- dummy.coef(GameModelBC) 
 pointEst <- unlist(pointEst) 
 names(pointEst) <- c(
-  "Grand Mean", 
-  levels(GameData$Post.Prod),
-  levels(GameData$Prod.Time),
-  outer(
-    levels(GameData$Post.Prod),
-    levels(GameData$Prod.Time),
-    FUN = paste,
-    sep = " x "
-  )
+  "Grand Mean", "Production Time", "Post Production", "Series","Genre", "Exclusive","Post Production: Series"
+  
 )
 
 data.frame("Estimate" = pointEst) %>%
