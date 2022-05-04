@@ -8,7 +8,8 @@ output: html_document
 ```{r include=FALSE}
 source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/checkSetup.R")
 checkSetup()
-packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters", "dplyr",  "DescTools", "emmeans", "openxlsx", "lme4", "nlme", "rstatix", "coin", "rcompanion") 
+packages <- c("tidyverse", "hasseDiagram", "knitr", "kableExtra", "car", "psych", "parameters", "dplyr",  "DescTools", "emmeans", "openxlsx", "lme4", "nlme", "rstatix", "coin", "rcompanion", "dunn.test", 
+  "multcompView")
 lapply(packages, library, character.only = TRUE)
 options(knitr.kable.NA = "")
 options(contrasts = c("contr.sum", "contr.poly"))
@@ -18,22 +19,22 @@ source("https://raw.github.com/neilhatfield/STAT461/master/rScripts/ANOVATools.R
 
 #factors
 ```{r}
-GameData<-Data
+GameData<-stat
 GameData <- GameData %>%
   dplyr::mutate( 
-    production = dplyr::recode_factor( 
-      production, 
+    Prod.Time = dplyr::recode_factor( 
+      Prod.Time, 
       "< 3 years" = "< 3 years",
       "3-5 years" = "3-5 years", 
       ">5 years" = "> 5 years", "> 5 years" = "> 5 years" 
     )
   )
 
-GameData$genre <- as.factor(GameData$genre)
-GameData$series <- as.factor(GameData$series)
-GameData$exclusive <- as.factor(GameData$exclusive)
-GameData$production <- as.factor(GameData$production)
-GameData$post <- as.factor(GameData$post)
+GameData$Genre <- as.factor(GameData$Genre)
+GameData$Series <- as.factor(GameData$Series)
+GameData$Exclusive <- as.factor(GameData$Exclusive)
+GameData$Prod.Time <- as.factor(GameData$Prod.Time)
+GameData$Post.Prod <- as.factor(GameData$Post.Prod)
 str(GameData)
 ```
 
@@ -42,14 +43,14 @@ str(GameData)
 ggplot( 
   data = GameData, 
   mapping = aes( 
-    x = production, 
-    y = copies, 
+    x = Prod.Time, 
+    y = Num_Copies, 
   ) 
 ) + 
   geom_boxplot() + 
   theme_bw() + 
-  xlab("Production Time") + 
-  ylab("Copies (in Millions)") + 
+  xlab("Prod.Time Time") + 
+  ylab("Num_Copies (in Millions)") + 
   theme( 
     legend.position = "right",
     text = element_text(size = 14,)
@@ -61,8 +62,8 @@ ggplot(
 
 ```{r}
 GameStats <- psych::describeBy(
-  x = GameData$copies, # Notice how we're getting the factorial treatments 
-  group = paste(GameData$production, sep = " x "), 
+  x = GameData$Num_Copies, # Notice how we're getting the factorial treatments 
+  group = paste(GameData$Prod.Time, sep = " x "), 
   na.rm = TRUE, 
   skew = TRUE, 
   ranges = TRUE, 
@@ -96,100 +97,57 @@ GameStats %>%
 # Base Interaction Plot
 ```{r}
 interaction.plot(
-  x.factor = GameData$production, # First Factor 
-  trace.factor = GameData$post, # Second Factor
-  response = GameData$copies, # Response fun = mean, 
+  x.factor = GameData$Prod.Time, # First Factor 
+  trace.factor = GameData$Post.Prod, # Second Factor
+  response = GameData$Num_Copies, # Response fun = mean, 
   type = "b", # Both points and lines 
   col = c("black","red","blue"), # Set colors for trace 
   pch = c(19, 17, 15), # Set symbols for trace 
   fixed = TRUE, legend = TRUE, 
-  xlab = "Production Time",
-  ylab = "Copies Sold (in Millions)",
+  xlab = "Prod.Time Time",
+  ylab = "Num_Copies Sold (in Millions)",
   main = "Interaction Plot of Game Data",
-  trace.label = "Post Production",
+  trace.label = "Post.Prod Prod.Time",
 )
 ```
 
-#Create Model
 ```{r}
-GameModel <- aov(
-  formula = copies ~ production+post + production:post,
-  data = GameData 
-)
-GameModel2 <- aov(
-  formula = log10(copies) ~ production+post + production:post,
-  data = GameData 
-)
-GameModel3 <- aov(
-  formula = log(copies) ~ production+post + production:post,
-  data = GameData 
-)
-GameModel4 <- aov(
-  formula = sqrt(copies) ~ production+post + production:post,
-  data = GameData 
-)
-```
-
-# Assess Assumptions
-```{r}
-#original model
-car::qqPlot( 
-  x = residuals(GameModel),
-  distribution = "norm",
-  envelope = 0.90, 
-  id = FALSE, 
-  pch = 20, 
-  ylab = "Residuals (copies sold in millions)",
-  main = "Q-Q Plot for Original Game Model"
+GameModelN <- aov(
+  formula = Num_Copies ~ Prod.Time + Post.Prod + Series + Genre + Exclusive + Prod.Time, 
+  data = GameData
   )
-```
+temp1 <- car::boxCox(GameModelN)
+temp1$x[which(temp1$y == max(temp1$y))]
 
+SGM <- psych::geometric.mean(GameData$Num_Copies)
+
+GameData <- GameData %>%
+  mutate(
+    bcSales = (Num_Copies^0.25 - 1)/(0.25 * SGM^(0.25-1))
+  )
+
+GameModelBC <- aov(
+  formula = bcSales ~ Prod.Time + Post.Prod + Series + Genre + Exclusive + Post.Prod:Series, 
+  data = GameData)
+```
+#Gaussian
 ```{r}
-#sqr rt model
 car::qqPlot( 
-  x = residuals(GameModel4),
+  x = residuals(GameModelBC),
   distribution = "norm",
-  envelope = 0.90, 
+  envelope = 0.9, 
   id = FALSE, 
-  pch = 20, 
-  ylab = "Residuals (copies sold in millions)",
-  main = "Q-Q Plot for Square Root of Game Model"
+  pch =20, 
+  ylab = "Residuals (Num_Copies sold in millions)" 
 )
 ```
 
-```{r}
-#natural log model
-car::qqPlot( 
-  x = residuals(GameModel3),
-  distribution = "norm",
-  envelope = 0.90, 
-  id = FALSE, 
-  pch = 20, 
-  ylab = "Residuals (copies sold in millions)",
-   main = "Q-Q Plot for natural Log of Game Model"
-)
-```
-
-#gaussian
-```{r}
-#log10 model
-car::qqPlot( 
-  x = residuals(GameModel2),
-  distribution = "norm",
-  envelope = 0.90, 
-  id = FALSE, 
-  pch = 20, 
-  ylab = "Residuals (copies sold in millions)",
-   main = "Q-Q Plot for Log10 of Game Model"
-)
-```
-
-#homoscedasticity
+#Homoscedasticity
 ```{r}
 ggplot( 
   data = data.frame( 
-    residuals = residuals(GameModel2), 
-    fitted = fitted.values(GameModel2) 
+    residuals = residuals(GameModelBC), 
+    fitted = fitted.values(GameModelBC) 
   ), 
   mapping = aes(x = fitted, y = residuals) 
 ) + 
@@ -207,21 +165,18 @@ ggplot(
     size = 0.5 
   ) + 
   theme_bw() + 
-  xlab("Fitted values (copies sold in millions)") + 
-  ylab("Residuals (copies sold in millions)") + 
-  labs(title = "Strip Plot of Game Model")
+  xlab("Fitted values (Num_Copies sold in millions)") + 
+  ylab("Residuals (Num_Copies sold in millions)")
 ```
 
-# Omnibus test
-```{r}
 # Omnibus Test/Modern ANOVA Table 
-
+```{r}
 parameters::model_parameters( 
-  model = GameModel,
+  model = GameModelBC,
   omega_squared = "partial", # Notice the use of partial
   eta_squared = "partial", 
   epsilon_squared = "partial", 
-  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
+  type = 3, # Use 1, 2, or 3 for the Type of SSQs you want 
   drop = "(Intercept)", # Drop an unneeded row for ANOVA
   verbose = FALSE # Makes the function "quiet" 
 ) %>% 
@@ -245,84 +200,24 @@ parameters::model_parameters(
     latex_options = c("scale_down", "HOLD_position") 
   )
 ```
-```{r}
-# Omnibus Test/Modern ANOVA Table 
 
-parameters::model_parameters( 
-  model = GameModel2,
-  omega_squared = "partial", # Notice the use of partial
-  eta_squared = "partial", 
-  epsilon_squared = "partial", 
-  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
-  drop = "(Intercept)", # Drop an unneeded row for ANOVA
-  verbose = FALSE # Makes the function "quiet" 
-) %>% 
-  dplyr::mutate(
-    p = ifelse( 
-      test = is.na(p),
-      yes = NA, 
-      no = pvalRound(p) 
-    ) 
-  ) %>%
-  knitr::kable(
-    digits = 4, 
-    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
-    caption = "ANOVA Table for Game Data", 
-    align = c('l',rep('c',8)),
-    booktab = TRUE 
-) %>% 
-  kableExtra::kable_styling( 
-    bootstrap_options = c("striped", "condensed"),
-    font_size = 12, 
-    latex_options = c("scale_down", "HOLD_position") 
-  )
-```
-# parametric shortcut
-```{r}
-# Anova example with Resin Lifetime 
-
-anova(GameModel)
-
-```
-# Create professional looking, modern ANOVA table for Song Knowledge
-
-```{r}
-parameters::model_parameters(
-  model = GameModel, 
-  omega_squared = "raw", 
-  eta_squared = "raw", 
-  epsilon_squared = "raw" 
-) %>% 
-  knitr::kable( 
-  digits = 4, 
-  col.names = c(
-    "Source", "SS", "df", "MS", "F", "p-value", 
-    "Omega Sq.", "Eta Sq.", "Epslion Sq."), 
-  caption = "ANOVA Table for Song Knowledge Study", 
-  booktabs = TRUE, 
-  align = c("l", rep("c", 8)) 
-  ) %>% 
-  kableExtra::kable_styling( 
-    font_size = 10, latex_options = c("HOLD_position") 
-  )
-```
 # Point Estimate
 ```{r}
-pointEst <- dummy.coef(GameModel)
+pointEst <- dummy.coef(GameModelBC)
 ```
 ```{R}
-dummy.coef(GameModel)
+dummy.coef(GameModelBC)
 ```
 ```{r}
-pointEst <- dummy.coef(GameModel) 
+pointEst <- dummy.coef(GameModelBC) 
 pointEst <- unlist(pointEst) 
 names(pointEst) <- c(
   "Grand Mean", 
-  levels(GameData$post),
-  levels(GameData$production),
+  levels(GameData$Post.Prod),
+  levels(GameData$Prod.Time),
   outer(
-    levels(GameData$post),
-    levels(GameData$production),
+    levels(GameData$Post.Prod),
+    levels(GameData$Prod.Time),
     FUN = paste,
     sep = " x "
   )
@@ -339,11 +234,11 @@ data.frame("Estimate" = pointEst) %>%
     latex_options = c("HOLD_position") 
   )
 ```
-## Kable Code for Tukey HSD
+## Kable Code for Newman Keuls
 
 ```{r}
 dtPH <- DescTools::PostHocTest(
-  x = GameModel, # Your aov/lm object
+  x = GameModelBC, # Your aov/lm object
   method = "newmankeuls", # Your chosen method
   conf.level = 0.9 # 1 -- Your Overall Type I Error Rate 
 )
@@ -352,10 +247,10 @@ dtPH <- DescTools::PostHocTest(
 
 ```{r}
 knitr::kable(
-  x = dtPH$production, # Notice the use of the factor name
+  x = dtPH$Prod.Time, # Notice the use of the factor name
   digits = 3,
   caption = paste( # Creates a nice title; copy at will
-  "Post Hoc",
+  "Post.Prod Hoc",
   attr(dtPH, "method"),
   "Comparisons" ),
   col.names = c("Difference", "Lower Bound", "Upper Bound",         "Adj. p-Value"), 
@@ -367,96 +262,4 @@ knitr::kable(
     latex_options = "HOLD_position"
   )
 ```
----
-title: "FinalCode"
-author: "Kate Davey"
-date: '2022-05-04'
-output: html_document
----
-{r}
-#Gaussian
-```{r}
-car::qqPlot( 
-  x = residuals(GameModelN),
-  distribution = "norm",
-  envelope = 0.9, 
-  id = FALSE, 
-  pch = 20, 
-  ylab = "Residuals (copies sold in millions)" 
-)
-```
 
-#Homoscedasticity
-```{r}
-ggplot( 
-  data = data.frame( 
-    residuals = residuals(GameModelN), 
-    fitted = fitted.values(GameModelN) 
-  ), 
-  mapping = aes(x = fitted, y = residuals) 
-) + 
-  geom_point(size = 2) + 
-  geom_hline(
-    yintercept = 0, 
-    linetype = "dashed",
-    color = "grey50" 
-  ) + 
-  geom_smooth( 
-    formula = y ~ x,
-    method = stats::loess, 
-    method.args = list(degree = 1), 
-    se = FALSE, 
-    size = 0.5 
-  ) + 
-  theme_bw() + 
-  xlab("Fitted values (copies sold in millions)") + 
-  ylab("Residuals (copies sold in millions)")
-```
-
-# Omnibus Test/Modern ANOVA Table 
-```{r}
-parameters::model_parameters( 
-  model = GameModelN,
-  omega_squared = "partial", # Notice the use of partial
-  eta_squared = "partial", 
-  epsilon_squared = "partial", 
-  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
-  drop = "(Intercept)", # Drop an unneeded row for ANOVA
-  verbose = FALSE # Makes the function "quiet" 
-) %>% 
-  dplyr::mutate(
-    p = ifelse( 
-      test = is.na(p),
-      yes = NA, 
-      no = pvalRound(p) 
-    ) 
-  ) %>%
-  knitr::kable(
-    digits = 4, 
-    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
-    caption = "ANOVA Table for Game Data", 
-    align = c('l',rep('c',8)),
-    booktab = TRUE 
-) %>% 
-  kableExtra::kable_styling( 
-    bootstrap_options = c("striped", "condensed"),
-    font_size = 12, 
-    latex_options = c("scale_down", "HOLD_position") 
-  )
-```
-```{r}
-library(tidyverse)
-GameModelN <- aov(
-  formula = bcSales ~ Prod.Time+Post.Prod+Series+Genre+Exclusive+Post.Prod:Exclusive, 
-  data = GameData
-)  
-#temp1 <- car::boxCox(GameModelN)
-temp1$x[which(temp1$y == max(temp1$y))]
-
-SGM <- psych::geometric.mean(GameData$Num_Copies)
-
-GameData <- GameData %>%
-  mutate(
-    bcSales = (Num_Copies^((1/3) - 1)/((1/3) * SGM^((1/3)-1)))
-  )
-```
