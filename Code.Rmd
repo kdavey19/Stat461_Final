@@ -342,22 +342,28 @@ data.frame("Estimate" = pointEst) %>%
 ## Kable Code for Tukey HSD
 
 ```{r}
-hsdPH <- TukeyHSD( 
-  x = GameModel, # Your aov/lm object 
-  conf.level = 0.90 # 1 -- Your overall Type I Error level 
+dtPH <- DescTools::PostHocTest(
+  x = GameModel, # Your aov/lm object
+  method = "newmankeuls", # Your chosen method
+  conf.level = 0.9 # 1 -- Your Overall Type I Error Rate 
 )
+```
+## Kable Code for DescTools
 
+```{r}
 knitr::kable(
-  x = hsdPH$`production:post`, # Notice the factor's name 
-  digits = 3, 
-  caption = "Post Hoc Tukey HSD Comparisons",
-  col.names = c("Difference", "Lower Bound", "Upper Bound", "Adj. p-Value"), 
-  align = 'lcccc', booktabs = TRUE,
-) %>%
+  x = dtPH$production, # Notice the use of the factor name
+  digits = 3,
+  caption = paste( # Creates a nice title; copy at will
+  "Post Hoc",
+  attr(dtPH, "method"),
+  "Comparisons" ),
+  col.names = c("Difference", "Lower Bound", "Upper Bound",         "Adj. p-Value"), 
+  align = 'lcccc', booktabs = TRUE, 
+) %>% 
   kableExtra::kable_styling( 
-    bootstrap_options = c("condensed", "boardered"),
-    font_size = 12,
+    bootstrap_options = c("condensed", "boardered"), 
+    font_size = 12, 
     latex_options = "HOLD_position"
   )
 ```
-
