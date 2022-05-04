@@ -367,3 +367,96 @@ knitr::kable(
     latex_options = "HOLD_position"
   )
 ```
+---
+title: "FinalCode"
+author: "Kate Davey"
+date: '2022-05-04'
+output: html_document
+---
+{r}
+#Gaussian
+```{r}
+car::qqPlot( 
+  x = residuals(GameModelN),
+  distribution = "norm",
+  envelope = 0.9, 
+  id = FALSE, 
+  pch = 20, 
+  ylab = "Residuals (copies sold in millions)" 
+)
+```
+
+#Homoscedasticity
+```{r}
+ggplot( 
+  data = data.frame( 
+    residuals = residuals(GameModelN), 
+    fitted = fitted.values(GameModelN) 
+  ), 
+  mapping = aes(x = fitted, y = residuals) 
+) + 
+  geom_point(size = 2) + 
+  geom_hline(
+    yintercept = 0, 
+    linetype = "dashed",
+    color = "grey50" 
+  ) + 
+  geom_smooth( 
+    formula = y ~ x,
+    method = stats::loess, 
+    method.args = list(degree = 1), 
+    se = FALSE, 
+    size = 0.5 
+  ) + 
+  theme_bw() + 
+  xlab("Fitted values (copies sold in millions)") + 
+  ylab("Residuals (copies sold in millions)")
+```
+
+# Omnibus Test/Modern ANOVA Table 
+```{r}
+parameters::model_parameters( 
+  model = GameModelN,
+  omega_squared = "partial", # Notice the use of partial
+  eta_squared = "partial", 
+  epsilon_squared = "partial", 
+  type = 1, # Use 1, 2, or 3 for the Type of SSQs you want 
+  drop = "(Intercept)", # Drop an unneeded row for ANOVA
+  verbose = FALSE # Makes the function "quiet" 
+) %>% 
+  dplyr::mutate(
+    p = ifelse( 
+      test = is.na(p),
+      yes = NA, 
+      no = pvalRound(p) 
+    ) 
+  ) %>%
+  knitr::kable(
+    digits = 4, 
+    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
+    caption = "ANOVA Table for Game Data", 
+    align = c('l',rep('c',8)),
+    booktab = TRUE 
+) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("striped", "condensed"),
+    font_size = 12, 
+    latex_options = c("scale_down", "HOLD_position") 
+  )
+```
+```{r}
+library(tidyverse)
+GameModelN <- aov(
+  formula = bcSales ~ Prod.Time+Post.Prod+Series+Genre+Exclusive+Post.Prod:Exclusive, 
+  data = GameData
+)  
+#temp1 <- car::boxCox(GameModelN)
+temp1$x[which(temp1$y == max(temp1$y))]
+
+SGM <- psych::geometric.mean(GameData$Num_Copies)
+
+GameData <- GameData %>%
+  mutate(
+    bcSales = (Num_Copies^((1/3) - 1)/((1/3) * SGM^((1/3)-1)))
+  )
+```
