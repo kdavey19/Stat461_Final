@@ -380,7 +380,7 @@ d <- knitr::kable(
   x = dtPH$Genre, # Notice the use of the factor name
   digits = 3,
   caption = paste( # Creates a nice title; copy at will
-  "Post.Prod Hoc",
+  "Post Production Hoc",
   attr(dtPH, "method"),
   "Comparisons" ),
   col.names = c("Difference", "Lower Bound", "Upper Bound",         "Adj. p-Value"), 
@@ -444,7 +444,31 @@ knitr::kable(
 digits = 4,
  col.names = c("Production Times", "Genre", "Estimate","SE", "DF",
  "t Statistic", "p-value"),
-caption = "Conditional Pairwise Comparisons for Complex Model",
+caption = "Conditional Pairwise Comparisons for Complex Model Production Time With Genre",
+align = rep("c", 7),
+booktabs = TRUE,
+longtable = TRUE
+) %>%
+kableExtra::kable_styling(
+bootstrap_options = c("striped", "condensed"),
+font_size = 12,
+latex_options = c("HOLD_position", "repeat_header")
+)
+```
+```{r}
+example2 <- emmeans::emmeans(
+  object = GameModelBC,
+  specs = pairwise ~ Prod.Time | Post.Prod:Exclusive,
+  adjust = "fdr",
+  level = 0.90
+)
+
+as.data.frame(example2$contrasts) %>%
+knitr::kable(
+digits = 4,
+ col.names = c("Production Times", " Post Production", "Exclusive", "Estimate","SE", "DF",
+ "t Statistic", "p-value"),
+caption = "Conditional Pairwise Comparisons for Complex Model Production Time With Post Production x Exclusive",
 align = rep("c", 7),
 booktabs = TRUE,
 longtable = TRUE
