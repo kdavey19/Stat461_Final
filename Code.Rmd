@@ -49,8 +49,8 @@ ggplot(
 ) + 
   geom_boxplot() + 
   theme_bw() + 
-  xlab("Prod.Time Time") + 
-  ylab("Num_Copies (in Millions)") + 
+  xlab("Production Time") + 
+  ylab("Number of Copies (in Millions)") + 
   theme( 
     legend.position = "right",
     text = element_text(size = 14,)
@@ -104,13 +104,90 @@ interaction.plot(
   col = c("black","red","blue"), # Set colors for trace 
   pch = c(19, 17, 15), # Set symbols for trace 
   fixed = TRUE, legend = TRUE, 
-  xlab = "Prod.Time Time",
-  ylab = "Num_Copies Sold (in Millions)",
+  xlab = "Production Time",
+  ylab = "Number of Copies (in Millions)",
   main = "Interaction Plot of Game Data",
-  trace.label = "Post.Prod Prod.Time",
+  trace.label = "Post Production",
 )
 ```
+###Simple Model
+```{r}
+GameModelA <- aov(
+  formula = Num_Copies ~ Prod.Time, 
+  data = GameData
+)
+tempA <- car::boxCox(GameModelA)
+tempA$x[which(tempA$y == max(tempA$y))]
+SGM <- psych::geometric.mean(GameData$Num_Copies)
+GameData <- GameData %>%
+  mutate(
+    AZSales = (Num_Copies^0.25 - 1)/(0.25 * SGM^(0.25-1))
+  )
+GameModelZ <- aov(
+  formula = AZSales ~ Prod.Time, 
+  data = GameData)
+```
 
+#Q-Q Plot For Simple Model
+```{r}
+car::qqPlot( 
+  x = residuals(GameModelZ),
+  distribution = "norm",
+  envelope = 0.9, 
+  id = FALSE, 
+  pch =20, 
+  ylab = "Residuals (Num_Copies sold in millions)",
+  main = "Q-Q Plot for Simple Model"
+)
+```
+#Homoscedasticity For Simple Model
+```{r}
+plot(GameModelZ, which = 1)
+```
+#ANOVA For Simple Model
+```{r}
+parameters::model_parameters( 
+  model = GameModelZ,
+  omega_squared = "raw", # Notice the use of partial
+  eta_squared = "raw", 
+  epsilon_squared = "raw", 
+  type = 3, # Use 1, 2, or 3 for the Type of SSQs you want 
+  drop = "(Intercept)", # Drop an unneeded row for ANOVA
+  verbose = FALSE # Makes the function "quiet" 
+) %>% 
+  knitr::kable(
+    digits = 4, 
+    col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Omega Sq.", "Eta Sq.", "Epsilon Sq."),
+    caption = "ANOVA Table for Game Data Simple Model", 
+    align = c('l',rep('c',8)),
+    booktab = TRUE 
+  ) %>% 
+  kableExtra::kable_styling( 
+    bootstrap_options = c("striped", "condensed"),
+    font_size = 12, 
+    latex_options = c("scale_down", "HOLD_position") 
+  )
+```
+
+#Point Estimates For Simple Model
+```{r}
+pointZEst <- dummy.coef(GameModelZ)
+pointZEst <- unlist(pointZEst)
+names(pointZEst) <- c("Grand Mean", 
+                      levels(GameData$Prod.Time))
+data.frame("Estimate" = pointZEst) %>%
+  knitr::kable( 
+    digits = 2, 
+    caption = "Point Estimates For Simple Model", 
+    booktabs = TRUE, align = "c" 
+  ) %>%
+  kableExtra::kable_styling(
+    font_size = 12,
+    latex_options = c("HOLD_position") 
+  )
+```
+
+#Complex Model
 ```{r}
 GameModelN <- aov(
   formula = Num_Copies ~ Prod.Time + Post.Prod + Series + Genre + Exclusive + Prod.Time, 
@@ -130,7 +207,7 @@ GameModelBC <- aov(
   formula = bcSales ~ Prod.Time + Post.Prod + Series + Genre + Exclusive + Post.Prod:Exclusive, 
   data = GameData)
 ```
-#Gaussian
+#Gaussian For Complex Model
 ```{r}
 car::qqPlot( 
   x = residuals(GameModelBC),
@@ -138,11 +215,12 @@ car::qqPlot(
   envelope = 0.9, 
   id = FALSE, 
   pch =20, 
-  ylab = "Residuals (Num_Copies sold in millions)" 
+  ylab = "Residuals (Number of Copies Sold in Millions)", 
+  main = "Q-Q Plot for Complex Model"
 )
 ```
 
-#Homoscedasticity
+#Homoscedasticity For Complex Model
 ```{r}
 ggplot( 
   data = data.frame( 
@@ -166,10 +244,11 @@ ggplot(
   ) + 
   theme_bw() + 
   xlab("Fitted values (Num_Copies sold in millions)") + 
-  ylab("Residuals (Num_Copies sold in millions)")
+  ylab("Residuals (Num_Copies sold in millions)")+ 
+  labs(title = "Scatterplot for Complex Model")
 ```
 
-# Omnibus Test/Modern ANOVA Table 
+# Omnibus Test/Modern ANOVA Table for Complex Model
 ```{r}
 parameters::model_parameters( 
   model = GameModelBC,
@@ -190,7 +269,7 @@ parameters::model_parameters(
   knitr::kable(
     digits = 4, 
     col.names = c("Source", "SS", "df", "MS", "F", "p-value", "Partial Omega Sq.", "Partial Eta Sq.", "Partial Epsilon Sq."),
-    caption = "ANOVA Table for Game Data", 
+    caption = "ANOVA Table for Complex Model", 
     align = c('l',rep('c',8)),
     booktab = TRUE 
 ) %>% 
@@ -200,40 +279,32 @@ parameters::model_parameters(
     latex_options = c("scale_down", "HOLD_position") 
   )
 ```
-
-# Point Estimate
-```{r}
-pointEst <- dummy.coef(GameModelBC)
-```
-```{R}
-dummy.coef(GameModelBC)
-```
+# Point Estimates for Complex Model
 ```{r}
 pointEst <- dummy.coef(GameModelBC) 
 pointEst <- unlist(pointEst) 
 names(pointEst) <- c(
   "Grand Mean", 
-  paste("Production Time",levels(GameData$Prod.Time)),
-  paste("Post Production",levels(GameData$Post.Prod)),
-  paste("Series", levels(GameData$Series)), 
-  paste("Genre", levels(GameData$Genre)), 
-  paste("Exclusive", levels(GameData$Exclusive)),
-  paste("no:no", "yes:no", "no:yes", "yes:yes")
+  paste("Production Time:",levels(GameData$Prod.Time)),
+  paste("Post Production:",levels(GameData$Post.Prod)),
+  paste("Series:", levels(GameData$Series)), 
+  paste("Genre:", levels(GameData$Genre)), 
+  paste("Exclusive:", levels(GameData$Exclusive)),
+  paste("Post Production and Exclusive:", c("no & no", "yes & no", "no & yes", "yes & yes"))
 )
-
 data.frame("Estimate" = pointEst) %>%
   knitr::kable(
   digits = 3,
-  caption = "Point Estimates",
+  caption = "Point Estimates for Complex Model",
   booktabs = TRUE,
   align = "c"
   ) %>%
   kableExtra::kable_styling(
     font_size = 12,
-    latex_options = c("HOLD_position")
+    latex_options = c("HOLD_position", "repeat_header")
   )
 ```
-## Kable Code for Newman Keuls
+## Kable Code for Newman Keuls For Complex Model
 
 ```{r}
 dtPH <- DescTools::PostHocTest(
@@ -353,119 +424,29 @@ f<- knitr::kable(
   )
 f
 ```
+#Comparisons For Complex Model
 ```{r}
-
-f<- knitr::kable(
-  x = dtPH$`Post.Prod:Exclusive`, # Notice the use of the factor name
-  digits = 3,
-  caption = paste( # Creates a nice title; copy at will
-  "Post Production X Exclusive Post Hoc",
-  attr(dtPH, "method"),
-  "Comparisons" ),
-  col.names = c("Difference", "Lower Bound", "Upper Bound",         "Adj. p-Value"), 
-  align = 'lcccc', booktabs = TRUE, 
-) %>% 
-  kableExtra::kable_styling( 
-    bootstrap_options = c("condensed", "boardered"), 
-    font_size = 12, 
-    latex_options = "HOLD_position"
-  )
-f
-```
-
-# Point Estimates (Battery Data)
-```{r}
-# Demo code for Point Estimates 
-## Battery Manufacturing Study
-
-pointEst <- dummy.coef(GameModelBC) 
-pointEst <- unlist(pointEst) 
-names(pointEst) <- c(
-  levels(GameData$Prod.Time),
-  levels(GameData$Post.Prod),
-  levels(GameData$Series), 
-  levels(GameData$Genre), 
-  levels(GameData$Exclusive),
-  levels(GameData$`Post.Prod:Exclusive`),
-  outer(
-    levels(GameData$Prod.Time),
-    levels(GameData$Post.Prod),
-    levels(GameData$Series), 
-    levels(GameData$Genre), 
-    levels(GameData$Exclusive),
-    levels(GameData$`Post.Prod:Exclusive`),
-    FUN = paste,
-    sep = " x "
-  )
+example1 <- emmeans::emmeans(
+  object = GameModelBC,
+  specs = pairwise ~ Prod.Time | Genre,
+  adjust = "fdr",
+  level = 0.90
 )
 
-data.frame("Estimate" = pointEst) %>%
-  knitr::kable( 
-  digits = 2, 
-  caption = "Point Estimates from the Song Knowledge Study", 
-  booktabs = TRUE, align = "c" 
-  ) %>%
-  kableExtra::kable_styling(
-    font_size = 12,
-    latex_options = c("HOLD_position") 
-  )
-```
-
-# Demo code for Post Hoc
-## Marginal Means with Adjusted Confidence Intervals
-## Battery Manufacturing Study 
-
-```{r}
-dtPH <- DescTools::PostHocTest(
-  x = GameModelBC, # Your aov/lm object
-  which = ("Prod.Time"+ "Post.Prod" +"Series" +"Genre"+"Exclusive"), # Specify which factor
-  method = "newmankeuls", # Your chosen method
-  conf.level = 0.9 # 1 -- Your Overall Type I Error Rate
-)
-
-anova.PostHoc(
-  aov.obj = GameModelBC, # Our aov output
-  response = "bcSales", # Our response variable
-  mainEffect = "Prod.Time"," Prod.Time","Post.Prod", "Series", "Genre", "Exclusive" # Our factor variable
+as.data.frame(example1$contrasts) %>%
+knitr::kable(
+digits = 4,
+ col.names = c("Production Times", "Genre", "Estimate","SE", "DF",
+ "t Statistic", "p-value"),
+caption = "Conditional Pairwise Comparisons for Complex Model",
+align = rep("c", 7),
+booktabs = TRUE,
+longtable = TRUE
 ) %>%
-  knitr::kable(
-    digits = 3,
-    caption = "Post Hoc Comparison Effect Sizes",
-    col.names = c("Pairwise Comparison","Cohen's d", "Hedge's g", "Prob. of Superiority"),
-    align = 'lccc',
-    booktabs = TRUE
-  ) %>%
-  kableExtra::kable_styling(
-    bootstrap_options = c("condensed", "boardered"),
-    font_size = 12,
-    latex_options = "HOLD_position"
-  )
-```
-```
-```{r}
-as.data.frame(
-  eff_size(
-    object = GamePH,
-    sigma = sigma(GameModelBC),
-    edf = df.residual(GameModelDC) 
-    ) 
-  ) %>%
-  dplyr::mutate( 
-    ps = probSup(effect.size), 
-    .after = effect.size 
-  ) %>%
-  dplyr::select(contrast, material, effect.size, ps) %>% 
-  knitr::kable(
-    digits = 3, 
-    col.names = c("Comparison", "Plate Material", "Cohen's d", "Probability of Superiority"), 
-    align = "lccc",
-    caption = "Effect Sizes for Temperature", 
-    booktab = TRUE
-  ) %>%
-  kableExtra::kable_styling( 
-    bootstrap_options = c("striped", "condensed"), 
-    font_size = 12, 
-    latex_options = "HOLD_position" 
-  )
+kableExtra::kable_styling(
+bootstrap_options = c("striped", "condensed"),
+font_size = 12,
+latex_options = c("HOLD_position", "repeat_header")
+)
 ```
 
