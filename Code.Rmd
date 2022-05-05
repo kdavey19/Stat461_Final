@@ -175,9 +175,13 @@ pointZEst <- dummy.coef(GameModelZ)
 pointZEst <- unlist(pointZEst)
 names(pointZEst) <- c("Grand Mean", 
                       levels(GameData$Prod.Time))
-data.frame("Estimate" = pointZEst) %>%
+data.frame("est" = pointZEst) %>%
+  mutate(
+    untransEst = (est * 0.25 * SGM^(0.25 - 1) + 1)^(1/0.25)
+  ) %>%
   knitr::kable( 
     digits = 2, 
+    col.names = c("Box-Cox Estimate", "Untransformed Estimate"),
     caption = "Point Estimates For Simple Model", 
     booktabs = TRUE, align = "c" 
   ) %>%
@@ -247,7 +251,6 @@ ggplot(
   ylab("Residuals (Num_Copies sold in millions)")+ 
   labs(title = "Scatterplot for Complex Model")
 ```
-
 # Omnibus Test/Modern ANOVA Table for Complex Model
 ```{r}
 parameters::model_parameters( 
@@ -292,16 +295,19 @@ names(pointEst) <- c(
   paste("Exclusive:", levels(GameData$Exclusive)),
   paste("Post Production and Exclusive:", c("no & no", "yes & no", "no & yes", "yes & yes"))
 )
-data.frame("Estimate" = pointEst) %>%
-  knitr::kable(
-  digits = 3,
-  caption = "Point Estimates for Complex Model",
-  booktabs = TRUE,
-  align = "c"
+data.frame("est" = pointEst) %>%
+  mutate(
+    untransEst = (est * 0.25 * SGM^(0.25 - 1) + 1)^(1/0.25)
+  ) %>%
+  knitr::kable( 
+    digits = 2, 
+    col.names = c("Box-Cox Estimate", "Untransformed Estimate"),
+    caption = "Point Estimates For Complex Model", 
+    booktabs = TRUE, align = "c" 
   ) %>%
   kableExtra::kable_styling(
     font_size = 12,
-    latex_options = c("HOLD_position", "repeat_header")
+    latex_options = c("HOLD_position") 
   )
 ```
 ## Kable Code for Newman Keuls For Complex Model
